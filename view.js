@@ -53,7 +53,7 @@ let W2 = [0, 0];
 function draw() {
   const q1 = +$("q1").value, q2 = +$("q2").value; $("o1").textContent = q1; $("o2").textContent = q2;
   $("oaz").textContent = cam.az; $("oel").textContent = cam.el;
-  const { L1, L2, R } = G, a1 = rad(q1), a2 = rad(q2), ink = css("--ink"), cA = css("--a"), cB = css("--b"), cC = css("--c"), mu = css("--muted");
+  const { L1, L2, R } = G, a1 = rad(q1), a2 = rad(q2), ink = css("--ink"), cA = css("--a"), cB = css("--b"), mu = css("--muted");
   const O = [0, 0], E = [L1 * Math.cos(a1), L1 * Math.sin(a1)], W = add(E, [L2 * Math.cos(a2), L2 * Math.sin(a2)]);
   const C = [-R * Math.cos(a2), -R * Math.sin(a2)], Lv = add(E, C);           // crank tip and forearm rear lever
   const Gp = G.G, T = add(E, G.triRear), T2 = add(E, G.triTop), F2 = add(W, G.triTop); // levelling pivots
@@ -62,8 +62,6 @@ function draw() {
   const yA = mid("upperArm"), yC = mid("crank"), yR = mid("rod"), yF = mid("forearm"), yT = mid("triangle"), yL = mid("level"), yK = mid("bracket");
   items = [];
 
-  boxOf("base", "base", mu); boxOf("servoYaw", "servoYaw", mu);
-  boxOf("plate", "plateA", mu); boxOf("plate", "bracket", mu);
   boxOf("servo", "servoA", cA); boxOf("servo", "servoB", cB);
   ring([0, G.depth.servoA[1], 0], 12, cA, 3); ring([0, G.depth.servoB[0], 0], 12, cB, 3);
   axle(O, [G.depth.servoA[1], G.depth.servoB[0]]);
@@ -73,13 +71,13 @@ function draw() {
   if ($("p2").checked) {
     // Fixed arm of the turret plate, rod parallel to the upper arm, elbow triangle, long link parallel to the
     // forearm, and the flange that closes the second parallelogram at the wrist.
-    ln(P(O, yK), P(Gp, yK), mu, 8); ln(P(Gp, yL), P(T, yL), cC, 6); ln(P(T2, yL), P(F2, yL), cC, 6);
-    plateAt([E, T, T2], yT, cC);
+    ln(P(O, yK), P(Gp, yK), ink, 8); ln(P(Gp, yL), P(T, yL), ink, 6); ln(P(T2, yL), P(F2, yL), ink, 6);
+    plateAt([E, T, T2], yT, ink);
     axle(Gp, [yK, yL]); axle(T, [yT, yL]); axle(T2, [yT, yL]); axle(F2, [yL, G.depth.flange[1]]);
     [Gp, T, T2, F2].forEach(p => pin(P(p, yL)));
   }
   if ($("p1").checked) {
-    ln(P(O, yC), P(C, yC), cB, 8); ln(P(C, yR), P(Lv, yR), cB, 6);
+    ln(P(O, yC), P(C, yC), cB, 8); ln(P(C, yR), P(Lv, yR), ink, 6);
     axle(C, [yC, yR]); axle(Lv, [yR, yF]);
     [C, Lv].forEach(p => pin(P(p, yR)));
   }

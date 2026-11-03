@@ -32,8 +32,8 @@ li { margin:4px 0; }
 <div class="stage">
   <svg id="v" viewBox="-200 -240 480 370" role="img" aria-label="The morobot-P double parallelogram arm"></svg>
   <div>
-    <label>Servo A, upper arm angle, <span id="o1"></span>°<input id="q1" type="range" min="20" max="160" value="80"></label>
-    <label>Servo B, forearm angle, <span id="o2"></span>°<input id="q2" type="range" min="-70" max="70" value="0"></label>
+    <label>Servo A, upper arm angle, <span id="o1"></span>°<input id="q1" style="accent-color:var(--a)" type="range" min="20" max="160" value="80"></label>
+    <label>Servo B, forearm angle, <span id="o2"></span>°<input id="q2" style="accent-color:var(--b)" type="range" min="-70" max="70" value="0"></label>
     <label><input id="p1" type="checkbox" checked> Show drive parallelogram</label>
     <label><input id="p2" type="checkbox" checked> Show levelling parallelogram</label>
     <label>Camera turn, <span id="oaz"></span>°<input id="az" type="range" min="-80" max="80" value="0"></label>
@@ -41,15 +41,15 @@ li { margin:4px 0; }
     <p><button id="side" type="button">Side view</button> <button id="iso" type="button">3D view</button></p>
     <p class="note">Drag the drawing to turn the camera. In side view, drag the wrist to move the arm by inverse kinematics.</p>
     <div class="read" id="r"></div>
-    <p class="key note"><span style="background:var(--a)"></span>servo A and upper arm &nbsp; <span style="background:var(--b)"></span>servo B and drive &nbsp; <span style="background:var(--ink)"></span>forearm &nbsp; <span style="background:var(--c)"></span>levelling</p>
+    <p class="key note"><span style="background:var(--a)"></span>servo A and upper arm &nbsp; <span style="background:var(--b)"></span>servo B and crank &nbsp; <span style="background:var(--ink)"></span>passive links</p>
   </div>
 </div>
 
 <h2>What it is</h2>
 <p>A parallelogram is a four-bar linkage whose opposite links are equal. Its coupler always stays parallel to the frame, so a bar that turns at one end turns the same way at the other. Two of them in series give the classic palletising arm:</p>
 <ol>
-<li><b>Drive parallelogram</b> (orange). Servo B sits on the base, coaxial with servo A. It turns a short crank. A rod as long as the upper arm joins the crank to a lever on the back of the forearm. The forearm then always points the way the crank points, so <b>the forearm angle from the ground equals servo B's angle</b>, whatever servo A does.</li>
-<li><b>Levelling parallelogram</b> (green). A fixed bar on the base, a rod parallel to the upper arm, a triangle at the elbow, and a long link parallel to the forearm hold the flange in one orientation. <b>The tool stays level</b> over the whole workspace with no motor at the wrist.</li>
+<li><b>Drive parallelogram</b>. Servo B sits on the base, coaxial with servo A. It turns a short crank. A rod as long as the upper arm joins the crank to a lever on the back of the forearm. The forearm then always points the way the crank points, so <b>the forearm angle from the ground equals servo B's angle</b>, whatever servo A does.</li>
+<li><b>Levelling parallelogram</b>. A fixed bar on the base, a rod parallel to the upper arm, a triangle at the elbow, and a long link parallel to the forearm hold the flange in one orientation. <b>The tool stays level</b> over the whole workspace with no motor at the wrist.</li>
 </ol>
 <p>The result: both heavy motors stay on the base, the joints are decoupled (each servo sets one absolute angle), and lifting a load keeps it level. The cost is extra links and two singular poses where crank and upper arm line up (dead centre); the readout turns red near them.</p>
 
@@ -77,6 +77,6 @@ li { margin:4px 0; }
 </ul>
 <p class="note">Limits: ideal rigid links and frictionless pins; lengths, pivots and part depths are measured from the morobot-P CAD model (geometry.json). The sources above were found by web search; their full texts were not checked.</p>
 </main>
-<script src="view.js?v=5"></script>
+<script src="view.js?v=8"></script>
 </body>
 </html>
