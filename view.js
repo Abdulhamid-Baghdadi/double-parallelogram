@@ -36,6 +36,10 @@ function box([x0, x1], [y0, y1], [z0, z1], c) {
     push(d, "polygon", { points:pts.map(p => `${p[0]},${p[1]}`).join(" "), fill:c, "fill-opacity":.16, stroke:c, "stroke-width":1.2, "stroke-linejoin":"round" });
   }
 }
+function plateAt(pts2, y, c) {
+  const pts = pts2.map(p => proj(P(p, y))), d = pts.reduce((s, p) => s + p[2], 0) / pts.length;
+  push(d, "polygon", { points:pts.map(p => `${p[0]},${p[1]}`).join(" "), fill:c, "fill-opacity":.35, stroke:c, "stroke-width":2, "stroke-linejoin":"round" });
+}
 function ring(p, r, c, w) {
   // A circle in the x-z plane (around the shoulder axis), drawn as a polyline so it tilts with the camera.
   const pts = [];
@@ -69,17 +73,19 @@ function draw() {
     const y = Y.level;
     // Fixed bar on the base, rod parallel to the upper arm, elbow triangle, link parallel to the forearm,
     // and the flange plate that closes the second parallelogram at the wrist.
-    ln(P(O, y), P(G2, y), mu, 5); ln(P(G2, y), P(T2, y), cC, 3); ln(P(E, y), P(T2, y), cC, 4); ln(P(T2, y), P(F2, y), cC, 3);
-    ln(P(W, y), P(F2, y), ink, 4);
+    ln(P(O, y), P(G2, y), mu, 6); ln(P(G2, y), P(T2, y), cC, 5); ln(P(T2, y), P(F2, y), cC, 6);
+    // Triangle and flange are plates, as in morobot-P, not single bars.
+    plateAt([E, T2, add(E, [H * 0.9, H * 0.5])], y, cC);
+    plateAt([W, F2, add(F2, [26, 0]), add(W, [26, 0])], y, ink);
     ln(P(O, Y.arm), P(O, y), mu, 1.5); ln(P(E, Y.arm), P(E, y), mu, 1.5); ln(P(W, Y.arm), P(W, y), mu, 1.5); // pins through the layers
     [O, G2, E, T2, W, F2].forEach(p => pin(P(p, y)));
   }
   if ($("p1").checked) {
     const y = Y.drive;
-    ln(P(O, y), P(C, y), cB, 4); ln(P(C, y), P(Lv, y), cB, 3); ln(P(Lv, Y.arm), P(Lv, y), mu, 1.5);
+    ln(P(O, y), P(C, y), cB, 7); ln(P(C, y), P(Lv, y), cB, 5); ln(P(Lv, Y.arm), P(Lv, y), mu, 1.5);
     [C, Lv].forEach(p => pin(P(p, y)));
   }
-  ln(P(O, Y.arm), P(E, Y.arm), cA, 7); ln(P(Lv, Y.arm), P(W, Y.arm), ok ? ink : css("--bad"), 6);
+  ln(P(O, Y.arm), P(E, Y.arm), cA, 10); ln(P(Lv, Y.arm), P(W, Y.arm), ok ? ink : css("--bad"), 8);
   const fl = Y.arm;
   ln(P(W, fl), P(add(W, [28, 0]), fl), ink, 4); ln(P(add(W, [28, 0]), fl), P(add(W, [28, -22]), fl), ink, 3);
   [O, E, Lv, W].forEach(p => pin(P(p, Y.arm)));
