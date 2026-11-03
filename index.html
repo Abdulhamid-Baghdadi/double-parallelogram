@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Double parallelogram arm</title>
+<style>
+:root { --bg:#fbfaf7; --ink:#1d1d1b; --muted:#6b6a65; --a:#1f6fd1; --b:#d1641f; --c:#2a8a3e; --line:#d9d6cf; --bad:#c0392b; }
+@media (prefers-color-scheme: dark) { :root { --bg:#16171a; --ink:#ecebe7; --muted:#9a998f; --a:#5aa2ff; --b:#ff9a52; --c:#5cc46f; --line:#33343a; --bad:#ff6b5b; } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 system-ui, sans-serif; }
+main { max-width:980px; margin:0 auto; padding:24px 16px 64px; }
+h1 { font-size:1.9rem; margin:0 0 4px; } h2 { margin-top:2.2em; border-bottom:1px solid var(--line); padding-bottom:4px; }
+.lede { color:var(--muted); margin-top:0; }
+.stage { display:grid; grid-template-columns:1fr 290px; gap:16px; align-items:start; }
+@media (max-width:760px) { .stage { grid-template-columns:1fr; } }
+svg { width:100%; height:auto; border:1px solid var(--line); border-radius:8px; touch-action:none; }
+label { display:block; font-size:.9rem; margin-top:10px; } input[type=range] { width:100%; }
+.read { font-variant-numeric:tabular-nums; font-size:.9rem; border-top:1px solid var(--line); margin-top:12px; padding-top:8px; }
+.read b { display:inline-block; min-width:10ch; } .bad { color:var(--bad); }
+.key span { display:inline-block; width:14px; height:4px; margin-right:6px; vertical-align:middle; }
+.note { font-size:.88rem; color:var(--muted); }
+li { margin:4px 0; }
+</style>
+</head>
+<body>
+<main>
+<h1>Double parallelogram arm</h1>
+<p class="lede">How palletising arms keep their motors on the base and their tool level, with two four-bar linkages and no extra motor.</p>
+
+<h2>Try it</h2>
+<div class="stage">
+  <svg id="v" viewBox="-110 -300 420 340" role="img" aria-label="Side view of a double parallelogram arm"></svg>
+  <div>
+    <label>Servo A, upper arm angle, <span id="o1"></span>°<input id="q1" type="range" min="20" max="160" value="80"></label>
+    <label>Servo B, forearm angle, <span id="o2"></span>°<input id="q2" type="range" min="-70" max="70" value="0"></label>
+    <label><input id="p1" type="checkbox" checked> Show drive parallelogram</label>
+    <label><input id="p2" type="checkbox" checked> Show levelling parallelogram</label>
+    <p class="note">Or drag the wrist (the flange) to move the arm by inverse kinematics.</p>
+    <div class="read" id="r"></div>
+    <p class="key note"><span style="background:var(--ink)"></span>arm &nbsp; <span style="background:var(--b)"></span>drive &nbsp; <span style="background:var(--c)"></span>levelling</p>
+  </div>
+</div>
+
+<h2>What it is</h2>
+<p>A parallelogram is a four-bar linkage whose opposite links are equal. Its coupler always stays parallel to the frame, so a bar that turns at one end turns the same way at the other. Two of them in series give the classic palletising arm:</p>
+<ol>
+<li><b>Drive parallelogram</b> (orange). Servo B sits on the base, coaxial with servo A. It turns a short crank. A rod as long as the upper arm joins the crank to a lever on the back of the forearm. The forearm then always points the way the crank points, so <b>the forearm angle from the ground equals servo B's angle</b>, whatever servo A does.</li>
+<li><b>Levelling parallelogram</b> (green). A fixed bar on the base, a rod parallel to the upper arm, a triangle at the elbow, and a long link parallel to the forearm hold the flange in one orientation. <b>The tool stays level</b> over the whole workspace with no motor at the wrist.</li>
+</ol>
+<p>The result: both heavy motors stay on the base, the joints are decoupled (each servo sets one absolute angle), and lifting a load keeps it level. The cost is extra links and two singular poses where crank and upper arm line up (dead centre); the readout turns red near them.</p>
+
+<h2>Equations</h2>
+<p>Upper arm L<sub>1</sub>, forearm L<sub>2</sub>, angles from the horizontal. Forward kinematics of the wrist:</p>
+<p><code>x = L₁ cos q₁ + L₂ cos q₂,  y = L₁ sin q₁ + L₂ sin q₂</code></p>
+<p>Inverse, with <code>d = √(x² + y²)</code>, <code>α = atan2(y, x)</code>, <code>c = (d² + L₁² − L₂²) / (2 L₁ d)</code>:</p>
+<p><code>q₁ = α + acos c,  q₂ = atan2(y − L₁ sin q₁, x − L₁ cos q₁)</code></p>
+<p>Keep <code>q₁ − q₂</code> roughly between 25° and 155° so the drive parallelogram never reaches dead centre.</p>
+
+<h2>Built examples</h2>
+<ul>
+<li>EEZYbotARM Mk2 by Carlo Franciscone, 3D printed, three hobby servos plus a gripper servo, frame based on a palletising robot: <a href="https://www.instructables.com/EEZYbotARM-Mk2-3D-Printed-Robot">Instructables</a>, <a href="https://www.myminifactory.com/object/3d-print-eezybotarm-mk2-46620">MyMiniFactory</a>; variant <a href="https://www.github.com/rookidroid/armstrong">Armstrong</a>.</li>
+<li><a href="https://instructables.com/OpenManipulator-Link">ROBOTIS OpenManipulator Link</a>, open-source parallel-linkage arm for palletising, Dynamixel servos.</li>
+<li><a href="https://docs.duet3d.com/User_manual/Machine_configuration/robot_4_axis_palletized">Duet3D, 4-axis palletized robot</a>: firmware kinematics for a two-stage parallelogram arm whose end platform stays parallel to the base.</li>
+<li><a href="https://abdulhamid-baghdadi.github.io/bittle-crane/">Bittle-servo crane</a>: a two-joint version with one parallelogram, driven by Petoi Bittle servos.</li>
+</ul>
+
+<h2>Further reading</h2>
+<ul>
+<li>Lee and Park (1999), Kinematic and dynamic analysis of a double parallel manipulator for enlarging workspace and avoiding singularities, IEEE Transactions on Robotics and Automation 15(6).</li>
+<li><a href="https://www.koreascience.or.kr/article/JAKO199711919538128.page">Direct kinematics of a double parallel robot arm (1997)</a>, Transactions of the KSME A.</li>
+<li><a href="https://emerald.com/insight/content/doi/10.1108/IR-01-2024-0046">Malla and Shanmugavel (2024)</a>, Simplified model to study the kinematics of manipulators with parallelogram linkages, Industrial Robot.</li>
+<li><a href="https://www.scitepress.org/Papers/2019/78390/78390.pdf">SciTePress (2019)</a>, a 3D-printed palletising-style platform from parallelogram parts.</li>
+</ul>
+<p class="note">Limits: ideal rigid links and frictionless pins; lengths are illustrative. The sources above were found by web search; their full texts were not checked.</p>
+</main>
+<script>
+const L1 = 120, L2 = 150, R = 30, H = 22; // H: levelling offset (triangle and flange height)
+const $ = id => document.getElementById(id), rad = d => d * Math.PI / 180, deg = r => r * 180 / Math.PI;
+const NS = "http://www.w3.org/2000/svg", css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const svg = $("v");
+function el(tag, at) { const e = document.createElementNS(NS, tag); for (const k in at) e.setAttribute(k, at[k]); svg.append(e); return e; }
+const ln = (a, b, c, w, dash) => el("line", { x1:a[0], y1:-a[1], x2:b[0], y2:-b[1], stroke:c, "stroke-width":w, "stroke-linecap":"round", ...(dash ? { "stroke-dasharray":dash } : {}) });
+const pin = (p, r = 3.5) => el("circle", { cx:p[0], cy:-p[1], r, fill:css("--bg"), stroke:css("--ink"), "stroke-width":1.5 });
+const add = (p, q) => [p[0] + q[0], p[1] + q[1]];
+
+function draw() {
+  const q1 = +$("q1").value, q2 = +$("q2").value; $("o1").textContent = q1; $("o2").textContent = q2;
+  const a1 = rad(q1), a2 = rad(q2), ink = css("--ink"), cB = css("--b"), cC = css("--c"), mu = css("--muted");
+  const O = [0, 0], E = [L1 * Math.cos(a1), L1 * Math.sin(a1)], W = add(E, [L2 * Math.cos(a2), L2 * Math.sin(a2)]);
+  const C = [-R * Math.cos(a2), -R * Math.sin(a2)], Lv = add(E, C);           // crank tip and forearm lever
+  const T2 = add(E, [0, H]), G2 = [0, H];  // levelling: fixed bar on the base, triangle corner at the elbow
+  const F2 = add(W, [0, H]);
+  const rel = q1 - q2, ok = rel >= 25 && rel <= 155;
+  svg.replaceChildren();
+  ln([-90, -18], [90, -18], mu, 2); el("rect", { x:-30, y:0, width:60, height:18, fill:"none", stroke:mu });
+  if ($("p2").checked) { ln(O, G2, cC, 3); ln(G2, T2, cC, 2.5, "5 3"); ln(E, T2, cC, 3); ln(T2, F2, cC, 3); }
+  if ($("p1").checked) { ln(O, C, cB, 4); ln(C, Lv, cB, 3); }
+  ln(O, E, ink, 7); ln(Lv, W, ok ? ink : css("--bad"), 6);
+  // Flange stays level: a plate from W to F2 with a tool pointing down.
+  ln(W, F2, ink, 4); ln(W, add(W, [28, 0]), ink, 4); ln(add(W, [28, 0]), add(W, [28, -22]), ink, 3);
+  [O, E, C, Lv, W, F2].forEach(p => pin(p)); if ($("p2").checked) [G2, T2].forEach(p => pin(p));
+  const h = el("circle", { cx:W[0], cy:-W[1], r:12, fill:css("--a"), "fill-opacity":.18, stroke:css("--a"), style:"cursor:grab" });
+  h.addEventListener("pointerdown", e => { dragging = true; svg.setPointerCapture(e.pointerId); });
+  $("r").innerHTML =
+    `<div><b>Wrist</b>x ${W[0].toFixed(0)}, y ${W[1].toFixed(0)} mm</div>` +
+    `<div><b>Forearm</b>${q2}° from horizontal = servo B</div>` +
+    `<div><b>Flange tilt</b>0° (held by the levelling links)</div>` +
+    `<div><b>Joint gap</b><span class="${ok ? "" : "bad"}">${rel}° ${ok ? "" : "near dead centre"}</span></div>`;
+}
+
+let dragging = false;
+svg.addEventListener("pointermove", e => {
+  if (!dragging) return;
+  const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY;
+  const s = p.matrixTransform(svg.getScreenCTM().inverse()), x = s.x, y = -s.y;
+  const d = Math.min(Math.hypot(x, y), L1 + L2 - 1), al = Math.atan2(y, x);
+  const c = (d * d + L1 * L1 - L2 * L2) / (2 * L1 * d); if (Math.abs(c) > 1) return;
+  const a1 = al + Math.acos(c), a2 = Math.atan2(d * Math.sin(al) - L1 * Math.sin(a1), d * Math.cos(al) - L1 * Math.cos(a1));
+  $("q1").value = Math.round(deg(a1)); $("q2").value = Math.round(deg(a2)); draw();
+});
+svg.addEventListener("pointerup", () => dragging = false);
+["q1", "q2", "p1", "p2"].forEach(id => $(id).addEventListener("input", draw));
+draw();
+</script>
+</body>
+</html>
