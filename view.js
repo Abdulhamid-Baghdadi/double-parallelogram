@@ -2,11 +2,12 @@
 // World axes: x forward, y across the arm (positive towards the viewer in the front view), z up.
 const L1 = 120, L2 = 150, R = 30, H = 22; // H: levelling offset (triangle and flange height)
 // Depth of each layer across the arm, so servos and links sit side by side as in a real build.
-const Y = { arm: 0, drive: 16, level: -16, servoA: [-34, -8], servoB: [8, 34] };
+// Servos sit outboard of the link layers so no link runs through a servo body.
+const Y = { arm: 0, drive: 16, level: -16, servoA: [-58, -30], servoB: [30, 58] };
 const $ = id => document.getElementById(id), rad = d => d * Math.PI / 180, deg = r => r * 180 / Math.PI;
 const NS = "http://www.w3.org/2000/svg", css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const svg = $("v");
-const cam = { az: 0, el: 0 };
+const cam = { az: -57, el: 31 }; // default 3D view; both servos and all three link layers visible
 
 // Orbit: turn about the vertical axis by az, then tilt by el. az = el = 0 is the plain side view.
 function proj([x, y, z]) {
@@ -54,18 +55,24 @@ function draw() {
   const rel = q1 - q2, ok = rel >= 25 && rel <= 155;
   items = [];
 
-  box([-60, 60], [-50, 50], [-40, -36], mu);                                   // base plate
-  box([-22, 22], Y.servoA, [-30, 18], cA); box([-22, 22], Y.servoB, [-30, 18], cB);
-  ln([0, Y.servoA[0], 0], [0, Y.servoB[1], 0], ink, 2, "3 3");                 // shared shoulder axis
+  box([-60, 60], [-70, 70], [-40, -36], mu);                                   // base plate
+  box([-22, 22], Y.servoA, [-36, 18], cA); box([-22, 22], Y.servoB, [-36, 18], cB);
+  // Servo A's shaft runs through to the upper arm; servo B's shaft runs to the crank. Both on one axis.
+  ln([0, Y.servoA[1], 0], [0, Y.arm, 0], cA, 4); ln([0, Y.servoB[0], 0], [0, Y.drive, 0], cB, 4);
   ring([0, Y.servoA[1], 0], 12, cA, 3); ring([0, Y.servoB[0], 0], 9, cB, 3);
+  // Fixed bracket from the base plate holding the levelling bar; it never moves.
+  ln([-8, Y.level, -36], [0, Y.level, 0], mu, 5); ln([8, Y.level, -36], [0, Y.level, H], mu, 5);
   txt([-22, Y.servoA[0], 18], "Servo A (behind): turns upper arm", cA, "end", -8, 0);
   txt([22, Y.servoB[1], -30], "Servo B (in front): turns crank", cB, "start", 8, 18);
 
   if ($("p2").checked) {
     const y = Y.level;
-    ln(P(O, y), P(G2, y), cC, 3); ln(P(G2, y), P(T2, y), cC, 2.5, "5 3"); ln(P(E, y), P(T2, y), cC, 3); ln(P(T2, y), P(F2, y), cC, 3);
-    ln(P(E, Y.arm), P(E, y), mu, 1.5); ln(P(W, Y.arm), P(W, y), mu, 1.5);    // pins through to the levelling layer
-    [G2, T2, F2].forEach(p => pin(P(p, y)));
+    // Fixed bar on the base, rod parallel to the upper arm, elbow triangle, link parallel to the forearm,
+    // and the flange plate that closes the second parallelogram at the wrist.
+    ln(P(O, y), P(G2, y), mu, 5); ln(P(G2, y), P(T2, y), cC, 3); ln(P(E, y), P(T2, y), cC, 4); ln(P(T2, y), P(F2, y), cC, 3);
+    ln(P(W, y), P(F2, y), ink, 4);
+    ln(P(O, Y.arm), P(O, y), mu, 1.5); ln(P(E, Y.arm), P(E, y), mu, 1.5); ln(P(W, Y.arm), P(W, y), mu, 1.5); // pins through the layers
+    [O, G2, E, T2, W, F2].forEach(p => pin(P(p, y)));
   }
   if ($("p1").checked) {
     const y = Y.drive;
@@ -117,5 +124,6 @@ svg.addEventListener("pointerup", () => mode = null);
 $("az").addEventListener("input", () => { cam.az = +$("az").value; draw(); });
 $("el").addEventListener("input", () => { cam.el = +$("el").value; draw(); });
 $("side").addEventListener("click", () => { cam.az = 0; cam.el = 0; $("az").value = 0; $("el").value = 0; draw(); });
-$("iso").addEventListener("click", () => { cam.az = 35; cam.el = 25; $("az").value = 35; $("el").value = 25; draw(); });
+$("iso").addEventListener("click", () => { cam.az = -57; cam.el = 31; $("az").value = -57; $("el").value = 31; draw(); });
+$("az").value = cam.az; $("el").value = cam.el;
 draw();
